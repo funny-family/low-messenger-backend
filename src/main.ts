@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { chatApiV1 } from './application/modules/chat/chat.controller';
+import { chatApiV1 } from './modules/chat.module';
 
 const app = express();
 const port = 8000;
