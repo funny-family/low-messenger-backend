@@ -7,11 +7,12 @@ import { mongoose } from '../initialization';
 import uniqueValidator from 'mongoose-unique-validator';
 
 import crypto from 'crypto';
+import { nanoid } from 'nanoid';
 
 import { checkIfStringIsEmpty } from '../../utils/check-if-string-is-empty.function';
 
 export interface IChatSchema extends mongoose.Document {
-  id: string;
+  entry_key: string;
   name: string;
   owner_id: string;
   salt: string;
@@ -19,12 +20,14 @@ export interface IChatSchema extends mongoose.Document {
   password: string;
   password_confirmation: string;
   user_IDs: any[];
+  has_password: boolean;
 }
 
 const chatSchema: mongoose.Schema = new mongoose.Schema({
-  id: {
+  entry_key: {
     type: String,
-    default: mongoose.Types.ObjectId(),
+    default: () => nanoid(20),
+    unique: true,
     required: true
   },
   name: {
@@ -35,13 +38,15 @@ const chatSchema: mongoose.Schema = new mongoose.Schema({
   owner_id: {
     type: String,
     unique: true,
-    // uniqueCaseInsensitive: true,
-    // unique: 'Chat must have only one owner!',
     required: [true, 'Chat requires owner!']
   },
   password_hash: {
     type: String,
     required: false
+  },
+  has_password: {
+    type: Boolean,
+    required: true
   },
   salt: {
     type: String,
@@ -85,9 +90,13 @@ chatSchema.virtual('password')
   .set(function(password) {
     const isPasswordEmpty = checkIfStringIsEmpty(password);
     if (isPasswordEmpty) {
+      // @ts-ignore
+      this.has_password = false;
       return;
     }
 
+    // @ts-ignore
+    this.has_password = true;
     // @ts-ignore
     this._password = password;
     // @ts-ignore
@@ -152,8 +161,6 @@ chatSchema.path('password_hash').validate(function() {
     // @ts-ignore
     this.invalidate('password_confirmation', 'Passwords must match!');
   }
-// // @ts-ignore
-// }, null);
 });
 
 // TODO: improve types!
@@ -190,9 +197,6 @@ chatSchema.methods.checkPassword = function(password) {
 // @ts-ignore
 chatSchema.methods.toJSON = function(chat) {
   const chatObject = this.toObject(chat);
-
-  // // @ts-ignore
-  // console.log('password', chatObject.password);
 
   // @ts-ignore
   delete chatObject.salt;
