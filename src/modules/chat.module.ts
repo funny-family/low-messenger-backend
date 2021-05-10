@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, response } from 'express';
 import rateLimit, { RateLimit } from 'express-rate-limit';
 
 import { ChatModel } from '../database/models/chat.model';
@@ -33,14 +33,14 @@ chatApiV1.post(
       user_IDs: req.body.user_IDs
     });
 
-    const chatModelErrorObject = chatModel.validateSync();
-    if (chatModelErrorObject) {
-      res.status(400).send(chatModelErrorObject);
-    }
-
-    const chatModelResponse = chatModel.toJSON();
-    chatModel.save();
-    res.status(201).json(chatModelResponse);
+    chatModel.save()
+      .then((response) => {
+        const chatModelResponse = response.toJSON();
+        res.status(201).json(chatModelResponse);
+      })
+      .catch((err) => {
+        res.status(400).send(err);
+      });
   }
 );
 
