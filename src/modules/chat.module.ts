@@ -36,10 +36,10 @@ chatApiV1.post(
     chatModel.save()
       .then((response) => {
         const chatModelResponse = response.toJSON();
-        res.status(201).json(chatModelResponse);
+        res.json(chatModelResponse).status(201);
       })
       .catch((error) => {
-        res.status(500).json(error);
+        res.json(error).status(500);
       });
   }
 );
