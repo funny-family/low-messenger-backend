@@ -36,8 +36,8 @@ userApiV1.delete(
     const userIdFromParams = req.params.id;
 
     UserModel.findOneAndDelete({ _id: userIdFromParams })
-      .then((doc) => {
-        if (!doc) {
+      .then((document) => {
+        if (!document) {
           const response = {
             message: `Document with id: ${userIdFromParams} dose not exist!`
           };
@@ -46,7 +46,7 @@ userApiV1.delete(
         }
 
         const response = {
-          ...doc?.toJSON(),
+          ...document?.toJSON(),
           message: `User with id: ${userIdFromParams} is deleted!`
         };
 

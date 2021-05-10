@@ -34,9 +34,9 @@ chatApiV1.post(
     });
 
     chatModel.save()
-      .then((response) => {
-        const chatModelResponse = response.toJSON();
-        res.json(chatModelResponse).status(201);
+      .then((document) => {
+        const response = document.toJSON();
+        res.json(response).status(201);
       })
       .catch((error) => {
         res.json(error).status(500);
