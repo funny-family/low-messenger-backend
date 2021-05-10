@@ -38,8 +38,8 @@ chatApiV1.post(
         const chatModelResponse = response.toJSON();
         res.status(201).json(chatModelResponse);
       })
-      .catch((err) => {
-        res.status(400).send(err);
+      .catch((error) => {
+        res.status(500).json(error);
       });
   }
 );
