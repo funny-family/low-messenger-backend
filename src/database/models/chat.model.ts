@@ -4,7 +4,7 @@
  * https://stackoverflow.com/questions/13580589/mongoose-unique-validation-error-type
  */
 import { mongoose } from '../initialization';
-// import uniqueValidator from 'mongoose-unique-validator';
+import uniqueValidator from 'mongoose-unique-validator';
 
 import crypto from 'crypto';
 
@@ -35,6 +35,8 @@ const chatSchema: mongoose.Schema = new mongoose.Schema({
   owner_id: {
     type: String,
     unique: true,
+    // uniqueCaseInsensitive: true,
+    // unique: 'Chat must have only one owner!',
     required: [true, 'Chat requires owner!']
   },
   password_hash: {
@@ -54,6 +56,11 @@ const chatSchema: mongoose.Schema = new mongoose.Schema({
   autoIndex: true,
   versionKey: false,
   timestamps: true
+});
+
+chatSchema.plugin(uniqueValidator, {
+  type: 'mongoose-unique-validator',
+  message: 'Chat must have only one owner!'
 });
 
 const pbkdf2SyncOptions = {
