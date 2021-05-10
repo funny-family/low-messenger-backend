@@ -1,18 +1,11 @@
 import { mongoose } from '../initialization';
 
 export interface IUserSchema extends mongoose.Document {
-  id: string;
   name: string;
   avatar: string;
 }
 
 const userSchema: mongoose.Schema = new mongoose.Schema({
-  id: {
-    type: String,
-    default: mongoose.Types.ObjectId(),
-    unique: true,
-    required: true
-  },
   name: {
     type: String,
     trim: true,
@@ -24,7 +17,6 @@ const userSchema: mongoose.Schema = new mongoose.Schema({
     required: false
   }
 }, {
-  id: false,
   versionKey: false,
   timestamps: true
 });
@@ -43,11 +35,6 @@ userSchema.path('name').validate(function() {
 // @ts-ignore
 userSchema.methods.toJSON = function(user) {
   const userData = this.toObject(user);
-
-  // @ts-ignore
-  delete chatObject.createdAt;
-  // @ts-ignore
-  delete chatObject.updatedAt;
 
   return userData;
 }
