@@ -12,20 +12,20 @@ const createUserRouteRateLimiter: RateLimit = rateLimit({
 });
 userApiV1.post(
   '/create-user',
-  createUserRouteRateLimiter,
+  // createUserRouteRateLimiter,
   (req: Request, res: Response) => {
     const userModel = new UserModel({
       name: req.body.name
       // avatar: req.body.avatar //soon!
     });
 
-    const userModelErrorObject = userModel.validateSync();
-    if (userModelErrorObject) {
-      res.status(400).send(userModelErrorObject);
-    }
-
-    const userModelResponse = userModel.toJSON();
-    userModel.save();
-    res.status(201).send(userModelResponse);
+    userModel.save()
+      .then((response) => {
+        const userModelResponse = response.toJSON();
+        res.status(201).json(userModelResponse);
+      })
+      .catch((errorObject) => {
+        res.status(400).send(errorObject);
+      });
   }
 );
