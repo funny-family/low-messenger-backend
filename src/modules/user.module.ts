@@ -29,3 +29,31 @@ userApiV1.post(
       });
   }
 );
+
+userApiV1.delete(
+  '/delete-user-by-id/:id',
+  (req: Request, res: Response) => {
+    const userIdFromParams = req.params.id;
+
+    UserModel.findOneAndDelete({ _id: userIdFromParams })
+      .then((doc) => {
+        if (!doc) {
+          const response = {
+            message: `Document with id: ${userIdFromParams} dose not exist!`
+          };
+
+          res.send(response).status(200);
+        }
+
+        const response = {
+          ...doc?.toJSON(),
+          message: `User with id: ${userIdFromParams} is deleted!`
+        };
+
+        res.json(response).status(204);
+      })
+      .catch((error) => {
+        res.status(500).json(error);
+      });
+  }
+);
