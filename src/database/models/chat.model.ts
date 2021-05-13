@@ -165,7 +165,7 @@ chatSchema.path('password_hash').validate(function() {
 
 // TODO: improve types!
 // @ts-ignore
-chatSchema.methods.checkPassword = function(password) {
+chatSchema.methods.verifyPassword = function(password) {
   if (!password) {
     return false;
   }
