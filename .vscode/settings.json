@@ -1,7 +1,9 @@
 {
-  "cSpell.words": [
-    "middlewares",
-    "respawn",
-    "virtuals"
-  ]
+  "cSpell.words": ["middlewares", "respawn", "virtuals"],
+  "prettier.trailingComma": "none",
+  "prettier.printWidth": 100,
+  "prettier.singleQuote": true,
+  "prettier.arrowParens": "always",
+  "prettier.jsxBracketSameLine": true,
+  "prettier.jsxSingleQuote": false
 }
