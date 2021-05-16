@@ -1,6 +1,6 @@
 import express from 'express';
 import responseTime from 'response-time';
-// https://stackoverflow.com/questions/10183291/how-to-get-the-full-url-in-express
+import cors from 'cors';
 import { Server } from 'http';
 
 import dotenv from 'dotenv';
@@ -15,13 +15,21 @@ const app = express();
 const server = new Server(app);
 const port = process.env.PORT || 8800;
 
-app.use(responseTime());
+app.use(
+  responseTime({
+    digits: 6
+  })
+);
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
-
-// app.use(handleMongooseErrors);
 
 app.use('/api/v1', chatApiV1);
 app.use('/api/v1', userApiV1);
