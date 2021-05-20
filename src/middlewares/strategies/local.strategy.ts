@@ -26,6 +26,10 @@ export const localStrategy = new LocalStrategy(
       // @ts-ignore
       const isChatPasswordValid = chat.verifyPassword(password);
 
+      if (!login || !password) {
+        return done(null, chat);
+      }
+
       // login check
       if (!wasChatFound) {
         const verityError = new ErrorObjectConstructor({
