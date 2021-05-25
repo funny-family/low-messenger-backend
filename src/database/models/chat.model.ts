@@ -23,45 +23,48 @@ export interface IChatSchema extends mongoose.Document {
   has_password: boolean;
 }
 
-const chatSchema: mongoose.Schema = new mongoose.Schema({
-  entry_key: {
-    type: String,
-    default: () => nanoid(20),
-    unique: true,
-    required: true
+const chatSchema: mongoose.Schema = new mongoose.Schema(
+  {
+    entry_key: {
+      type: String,
+      default: () => nanoid(20),
+      unique: true,
+      required: true
+    },
+    name: {
+      type: String,
+      trim: true,
+      required: [true, 'Chat name is required!']
+    },
+    owner_id: {
+      type: String,
+      unique: true,
+      required: [true, 'Chat requires owner!']
+    },
+    password_hash: {
+      type: String,
+      required: false
+    },
+    has_password: {
+      type: Boolean,
+      required: true
+    },
+    salt: {
+      type: String,
+      required: false
+    },
+    user_IDs: {
+      type: Array,
+      default: [],
+      required: true
+    }
   },
-  name: {
-    type: String,
-    trim: true,
-    required: [true, 'Chat name is required!']
-  },
-  owner_id: {
-    type: String,
-    unique: true,
-    required: [true, 'Chat requires owner!']
-  },
-  password_hash: {
-    type: String,
-    required: false
-  },
-  has_password: {
-    type: Boolean,
-    required: true
-  },
-  salt: {
-    type: String,
-    required: false
-  },
-  user_IDs: {
-    type: Array,
-    default: [],
-    required: true
+  {
+    autoIndex: true,
+    versionKey: false,
+    timestamps: true
   }
-}, {
-  autoIndex: true,
-  versionKey: false,
-  timestamps: true
-});
+);
 
 chatSchema.plugin(uniqueValidator, {
   type: 'mongoose-unique-validator',
@@ -75,7 +78,17 @@ const pbkdf2SyncOptions = {
 };
 
 // TODO: improve types!
-chatSchema.path('name').validate(function() {
+chatSchema.path('entry_key').validate(function () {
+  const minLength = 20;
+  // @ts-ignore
+  if (this.entry_key < minLength) {
+    // @ts-ignore
+    this.invalidate('entry_key', `Entry key must be at least ${minLength}!`);
+  }
+});
+
+// TODO: improve types!
+chatSchema.path('name').validate(function () {
   const minLength = 4;
   // @ts-ignore
   if (this.name && this.name.length < minLength) {
@@ -85,9 +98,10 @@ chatSchema.path('name').validate(function() {
 });
 
 // TODO: improve types!
-chatSchema.virtual('password')
+chatSchema
+  .virtual('password')
   // @ts-ignore
-  .set(function(password) {
+  .set(function (password) {
     const isPasswordEmpty = checkIfStringIsEmpty(password);
     if (isPasswordEmpty) {
       // @ts-ignore
@@ -111,27 +125,28 @@ chatSchema.virtual('password')
       pbkdf2SyncOptions.digest
     );
   })
-  .get(function() {
+  .get(function () {
     // @ts-ignore
     return this._password;
   });
 
 // TODO: improve types!
-chatSchema.virtual('password_confirmation')
+chatSchema
+  .virtual('password_confirmation')
   // @ts-ignore
-  .set(function(passwordConfirmation) {
+  .set(function (passwordConfirmation) {
     // @ts-ignore
     this._password_confirmation = passwordConfirmation;
   })
-  .get(function() {
+  .get(function () {
     // @ts-ignore
     return this._password_confirmation;
   });
 
 // TODO: improve types!
-chatSchema.path('password_hash').validate(function() {
+chatSchema.path('password_hash').validate(function () {
   const minLength = 4;
-  const isPasswordEmpty = (
+  const isPasswordEmpty =
     // @ts-ignore
     this._password === '' ||
     // @ts-ignore
@@ -141,8 +156,7 @@ chatSchema.path('password_hash').validate(function() {
     // @ts-ignore
     String(this._password).trim() === '' ||
     // @ts-ignore
-    this._password.length <= 0
-  );
+    this._password.length <= 0;
 
   // @ts-ignore
   if (!isPasswordEmpty && this._password.length < minLength) {
@@ -165,7 +179,7 @@ chatSchema.path('password_hash').validate(function() {
 
 // TODO: improve types!
 // @ts-ignore
-chatSchema.methods.verifyPassword = function(password) {
+chatSchema.methods.verifyPassword = function (password) {
   if (!password) {
     return false;
   }
@@ -180,23 +194,29 @@ chatSchema.methods.verifyPassword = function(password) {
     return false;
   }
 
-  const isPasswordValid = String(crypto.pbkdf2Sync(
-    password,
+  const isPasswordValid =
+    String(
+      crypto.pbkdf2Sync(
+        password,
+        // @ts-ignore
+        this.salt,
+        pbkdf2SyncOptions.iterations,
+        pbkdf2SyncOptions.keylen,
+        pbkdf2SyncOptions.digest
+      )
     // @ts-ignore
-    this.salt,
-    pbkdf2SyncOptions.iterations,
-    pbkdf2SyncOptions.keylen,
-    pbkdf2SyncOptions.digest
-    // @ts-ignore
-  )) === this.password_hash;
+    ) === this.password_hash;
 
   return isPasswordValid;
 };
 
 // TODO: improve types!
 // @ts-ignore
-chatSchema.methods.toJSON = function(chat) {
+chatSchema.methods.toJSON = function (chat) {
   const chatObject = this.toObject(chat);
+
+  chatObject.id = chatObject._id;
+  delete chatObject._id;
 
   // @ts-ignore
   delete chatObject.salt;
@@ -206,6 +226,15 @@ chatSchema.methods.toJSON = function(chat) {
   delete chatObject.password;
   // @ts-ignore
   delete chatObject.password_confirmation;
+
+  // @ts-ignore
+  chatObject.created_at = chatObject.createdAt;
+  // @ts-ignore
+  delete chatObject.createdAt;
+  // @ts-ignore
+  chatObject.updated_at = chatObject.updatedAt;
+  // @ts-ignore
+  delete chatObject.updatedAt;
 
   return chatObject;
 };
