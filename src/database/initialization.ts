@@ -15,7 +15,8 @@ const mongooseConfig = {
   options: mongooseConnectOptions
 };
 
-mongoose.connect(mongooseConfig.uris, mongooseConfig.options)
+mongoose
+  .connect(mongooseConfig.uris, mongooseConfig.options)
   .then((data) => {
     // console.log(data);
   })
@@ -31,6 +32,4 @@ mongoose.connection.on('error', () => {
   console.error('\x1b[31m', `Cannot connect to ${mongooseConfig.options.dbName} db`);
 });
 
-export {
-  mongoose
-};
+export { mongoose };
