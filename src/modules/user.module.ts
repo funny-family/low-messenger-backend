@@ -3,6 +3,8 @@ import rateLimit, { RateLimit } from 'express-rate-limit';
 
 import { UserModel } from '../database/models/user.model';
 
+import { ResponseObject } from '../utils/api';
+
 export const userApiV1 = Router();
 
 const createUserRouteRateLimiter: RateLimit = rateLimit({
@@ -11,49 +13,219 @@ const createUserRouteRateLimiter: RateLimit = rateLimit({
   message: 'Too many requests from this IP, please try again latter!'
 });
 userApiV1.post(
-  '/create-user',
+  '/user',
   // createUserRouteRateLimiter,
-  (req: Request, res: Response) => {
-    const userModel = new UserModel({
-      name: req.body.name
-      // avatar: req.body.avatar //soon!
-    });
+  async (req: Request, res: Response) => {
+    const headers = {
+      'Content-Type': 'application/json; charset=utf-8'
+    };
 
-    userModel.save()
-      .then((response) => {
-        const userModelResponse = response.toJSON();
-        res.status(201).json(userModelResponse);
-      })
-      .catch((errorObject) => {
-        res.status(400).send(errorObject);
+    try {
+      const userModel = new UserModel({
+        name: req.body.name
+        // avatar: req.body.avatar //soon!
       });
+
+      const userData = await userModel.save();
+
+      const statusCode = 201;
+      const savedUserData = userData.toJSON();
+      const responseData = new ResponseObject({
+        data: {
+          title: 'Created new user.',
+          attributes: {
+            ...savedUserData
+          }
+        },
+        errors: {}
+      });
+
+      res.set(headers);
+      res.status(statusCode);
+      res.json(responseData);
+
+      return;
+    } catch (error) {
+      try {
+        const errorObject = {
+          ...error.errors,
+          message: error.message
+        };
+
+        const statusCode = 400;
+        const responseData = new ResponseObject({
+          data: {},
+          errors: {
+            ...errorObject,
+            status: statusCode,
+            title: 'Validation Error!'
+          }
+        });
+
+        res.set(headers);
+        res.status(statusCode);
+        res.json(responseData);
+
+        return;
+      } catch (error) {
+        const statusCode = 500;
+        const responseData = new ResponseObject({
+          data: {},
+          errors: {
+            ...error,
+            status: statusCode,
+            title: 'Something went wrong on our side!'
+          }
+        });
+
+        res.set(headers);
+        res.status(statusCode);
+        res.json(responseData);
+
+        return;
+      }
+    }
+  }
+);
+
+userApiV1.get(
+  '/user/:id',
+  // rateLimiter
+  async (req: Request, res: Response) => {
+    const headers = {
+      'Content-Type': 'application/json; charset=utf-8'
+    };
+
+    try {
+      const userId = req.params.id;
+      const user = await UserModel.findOne({ _id: userId }).exec();
+
+      if (!user) {
+        throw new Error('User not found!');
+      }
+
+      const userData = user?.toJSON();
+
+      const statusCode = 200;
+      const responseData = new ResponseObject({
+        data: {
+          title: 'Got user by id.',
+          attributes: {
+            ...userData
+          }
+        },
+        errors: {}
+      });
+
+      res.set(headers);
+      res.status(statusCode);
+      res.json(responseData);
+
+      return;
+    } catch (error) {
+      try {
+        const errorObject = {
+          ...error.errors,
+          message: error.message
+        };
+
+        const statusCode = 404;
+        const responseData = new ResponseObject({
+          data: {},
+          errors: {
+            ...errorObject,
+            status: statusCode,
+            title: 'Mongo error!'
+          }
+        });
+
+        res.set(headers);
+        res.status(statusCode);
+        res.json(responseData);
+        return;
+      } catch (error) {
+        const statusCode = 500;
+        const responseData = new ResponseObject({
+          data: {},
+          errors: {
+            ...error,
+            status: statusCode,
+            title: 'Something went wrong on our side!'
+          }
+        });
+
+        res.set(headers);
+        res.status(statusCode);
+        res.json(responseData);
+
+        return;
+      }
+    }
   }
 );
 
 userApiV1.delete(
-  '/delete-user-by-id/:id',
-  (req: Request, res: Response) => {
-    const userIdFromParams = req.params.id;
+  '/user/:id',
+  // rateLimiter
+  async (req: Request, res: Response) => {
+    const headers = {
+      'Content-Type': 'application/json; charset=utf-8'
+    };
 
-    UserModel.findOneAndDelete({ _id: userIdFromParams })
-      .then((document) => {
-        if (!document) {
-          const response = {
-            message: `Document with id: ${userIdFromParams} dose not exist!`
-          };
+    try {
+      const id = req.params.id;
+      const user = await UserModel.findOneAndDelete({ _id: id }).exec();
 
-          res.send(response).status(200);
-        }
+      if (!user) {
+        throw new Error('User not found!');
+      }
 
-        const response = {
-          ...document?.toJSON(),
-          message: `User with id: ${userIdFromParams} is deleted!`
+      const statusCode = 204;
+
+      res.set(headers);
+      res.status(statusCode);
+      res.end();
+
+      return;
+    } catch (error) {
+      try {
+        const errorObject = {
+          ...error.errors,
+          message: error.message
         };
 
-        res.json(response).status(204);
-      })
-      .catch((error) => {
-        res.status(500).json(error);
-      });
+        const statusCode = 404;
+        const responseData = new ResponseObject({
+          data: {},
+          errors: {
+            ...errorObject,
+            status: statusCode,
+            title: 'Mongo error!'
+          }
+        });
+
+        res.set(headers);
+        res.status(statusCode);
+        res.json(responseData);
+
+        return;
+      } catch (error) {
+        const statusCode = 500;
+        const responseData = new ResponseObject({
+          data: {},
+          errors: {
+            ...error,
+            status: statusCode,
+            title: 'Something went wrong on our side!'
+          }
+        });
+
+        res.set(headers);
+        res.status(statusCode);
+        res.json(responseData);
+
+        return;
+      }
+    }
   }
 );
