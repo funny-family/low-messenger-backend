@@ -31,8 +31,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/api/chat/v1', chatApiV1);
-app.use('/api/user/v1', userApiV1);
+app.use('/api/v1', chatApiV1);
+app.use('/api/v1', userApiV1);
 
 server.listen(port, () => {
   console.log('\x1b[36m', `Server running at: http://localhost:${port}/`);
