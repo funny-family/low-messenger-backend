@@ -30,6 +30,8 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^8.5.1",
+    "@types/passport-jwt": "^3.0.5",
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
@@ -37,10 +39,12 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-rate-limit": "^5.2.6",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.7",
     "mongoose-unique-validator": "^2.0.3",
     "nanoid": "^3.1.22",
     "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "response-time": "^2.3.2",
     "socket.io": "^4.0.1"
