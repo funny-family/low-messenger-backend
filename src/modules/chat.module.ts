@@ -26,7 +26,7 @@ chatApiV1.post(
     try {
       const chatModel = new ChatModel({
         name: req.body.name,
-        owner_id: req.body.owner_id,
+        owner: req.body.owner,
         password: req.body.password,
         password_confirmation: req.body.password_confirmation,
         user_IDs: req.body.user_IDs

@@ -14,7 +14,7 @@ import { checkIfStringIsEmpty } from '../../utils/check-if-string-is-empty.funct
 export interface IChatSchema extends mongoose.Document {
   entry_key: string;
   name: string;
-  owner_id: string;
+  owner: string;
   salt: string;
   password_hash: string;
   password: string;
@@ -26,7 +26,7 @@ export interface IChatSchema extends mongoose.Document {
 const chatSchema: mongoose.Schema = new mongoose.Schema(
   {
     entry_key: {
-      type: String,
+    type: String,
       default: () => nanoid(20),
       unique: true,
       required: true
@@ -36,7 +36,7 @@ const chatSchema: mongoose.Schema = new mongoose.Schema(
       trim: true,
       required: [true, 'Chat name is required!']
     },
-    owner_id: {
+    owner: {
       type: String,
       unique: true,
       required: [true, 'Chat requires owner!']
